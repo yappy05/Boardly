@@ -1,10 +1,31 @@
 import { FcGoogle } from "react-icons/fc";
 import { FaYandex } from "react-icons/fa";
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "../../../features/auth/model/useAuth.ts";
+import {useState} from "react";
+import type {LoginDto} from "../../../shared/api/dto/login.dto.ts";
+import * as React from "react";
 
 
 export const LoginPage = () => {
-    const navigator = useNavigate()
+    const navigate = useNavigate()
+    const [dataForm, setDataForm] = useState<LoginDto>({email: '', password: ''})
+    const {login} = useAuth()
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = e.target;
+        setDataForm((prevState) => ({
+            ...prevState, [name]: value
+        }))
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        console.log('data form send!')
+        await login(dataForm)
+    }
+
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -15,7 +36,7 @@ export const LoginPage = () => {
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    <form className="space-y-6">
+                    <form className="space-y-6" onSubmit={handleSubmit}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                 Email
@@ -29,6 +50,7 @@ export const LoginPage = () => {
                                     required
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     placeholder="your@email.com"
+                                    onChange={handleChange}
                                 />
                             </div>
                         </div>
@@ -46,6 +68,7 @@ export const LoginPage = () => {
                                     required
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     placeholder="••••••••"
+                                    onChange={handleChange}
                                 />
                             </div>
                         </div>

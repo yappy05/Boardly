@@ -1,8 +1,31 @@
 import {FcGoogle} from "react-icons/fc";
 import {FaYandex} from "react-icons/fa";
 import {Link} from "react-router-dom";
+import {useState} from "react";
+import type {RegisterDto} from "../../../shared/api/dto/register.dto.ts";
+import * as React from "react";
+import {useAuth} from "../../../features/auth/model/useAuth.ts";
 
 export const RegisterPage = () => {
+
+    const {register} = useAuth()
+
+    const [formData, setFormData] = useState<RegisterDto>({name: '', email: '', password: ''})
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = e.target;
+        setFormData(prev => ({
+            ...prev, [name]: value
+        }))
+    }
+
+    const handelSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        console.log('Форма отправлена', formData);
+        await register(formData)
+    }
+
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -13,7 +36,7 @@ export const RegisterPage = () => {
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    <form className="space-y-6">
+                    <form className="space-y-6" onSubmit={handelSubmit}>
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                                 Имя
@@ -27,6 +50,7 @@ export const RegisterPage = () => {
                                     required
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     placeholder="Ваше имя"
+                                    onChange={handleChange}
                                 />
                             </div>
                         </div>
@@ -44,6 +68,7 @@ export const RegisterPage = () => {
                                     required
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     placeholder="your@email.com"
+                                    onChange={handleChange}
                                 />
                             </div>
                         </div>
@@ -61,6 +86,7 @@ export const RegisterPage = () => {
                                     required
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     placeholder="••••••••"
+                                    onChange={handleChange}
                                 />
                             </div>
                             <p className="mt-1 text-xs text-gray-500">
