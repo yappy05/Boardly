@@ -56,6 +56,15 @@ let UserService = class UserService {
         });
         return user;
     }
+    async findByProviderId(providerId, provider) {
+        const user = await this.prismaService.user.findFirst({
+            where: {
+                providerId,
+                provider,
+            },
+        });
+        return user;
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

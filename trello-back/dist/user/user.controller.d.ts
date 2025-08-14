@@ -4,11 +4,13 @@ export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
     findUserByEmail(email: string): Promise<{
-        id: string;
         name: string;
         email: string;
-        password: string;
+        password: string | null;
+        id: string;
         role: import("prisma/__generated__").$Enums.UserRole;
+        provider: import("prisma/__generated__").$Enums.Provider | null;
+        providerId: string | null;
         accessToken: string | null;
         refreshToken: string | null;
         expiresAt: number | null;
@@ -16,9 +18,9 @@ export declare class UserController {
         updatedAt: Date;
     } | null>;
     findByRefreshToken(req: Request): Promise<{
-        id: string;
         name: string;
         email: string;
+        id: string;
         refreshToken: string | null;
     } | null>;
 }

@@ -11,6 +11,26 @@ export declare class AuthService {
     private readonly jwtService;
     private readonly configService;
     constructor(prismaService: PrismaService, userService: UserService, jwtService: JwtService, configService: ConfigService);
+    googleAuth(profile: any): Promise<{
+        user: {
+            name: string;
+            email: string;
+            password: string | null;
+            id: string;
+            role: import("prisma/__generated__").$Enums.UserRole;
+            provider: import("prisma/__generated__").$Enums.Provider | null;
+            providerId: string | null;
+            accessToken: string | null;
+            refreshToken: string | null;
+            expiresAt: number | null;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+        tokens: {
+            accessToken: string;
+            refreshToken: string;
+        };
+    }>;
     register(res: Response, dto: RegisterDto): Promise<{
         accessToken: string;
         refreshToken: string;

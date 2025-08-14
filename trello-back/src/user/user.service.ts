@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from '../auth/dto/register.dto';
 import { Request } from 'express';
 import { RequestCookieDto } from '../auth/dto/request-cookie.dto';
+import { Provider } from 'prisma/__generated__';
+
 
 @Injectable()
 export class UserService {
@@ -45,6 +47,16 @@ export class UserService {
         name: true,
         email: true,
         refreshToken: includeRefreshToken,
+      },
+    });
+    return user;
+  }
+
+  public async findByProviderId(providerId: string, provider: Provider) {
+    const user = await this.prismaService.user.findFirst({
+      where: {
+        providerId,
+        provider,
       },
     });
     return user;

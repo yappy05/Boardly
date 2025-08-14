@@ -9,9 +9,11 @@ async function bootstrap() {
     const config = app.get(config_1.ConfigService);
     app.use(cookieParser());
     app.enableCors({
-        origin: config.getOrThrow('ALLOWED_ORIGIN'),
+        origin: ['http://localhost:3000', 'http://localhost:5173'],
         credentials: true,
         exposedHeaders: ['set-cookie'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
     });
     await app.listen(config.getOrThrow('APPLICATION_PORT'));
 }

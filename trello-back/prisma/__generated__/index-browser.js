@@ -126,6 +126,8 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   password: 'password',
   role: 'role',
+  provider: 'provider',
+  providerId: 'providerId',
   accessToken: 'accessToken',
   refreshToken: 'refreshToken',
   expiresAt: 'expiresAt',
@@ -150,6 +152,12 @@ exports.Prisma.NullsOrder = {
 exports.UserRole = exports.$Enums.UserRole = {
   REGULAR: 'REGULAR',
   ADMIB: 'ADMIB'
+};
+
+exports.Provider = exports.$Enums.Provider = {
+  LOCAL: 'LOCAL',
+  GOOGLE: 'GOOGLE',
+  YANDEX: 'YANDEX'
 };
 
 exports.Prisma.ModelName = {

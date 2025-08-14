@@ -21,6 +21,25 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
+  public async googleAuth(profile: any) {
+    const { name, emails } = profile;
+    let user = await this.userService.findByProviderId(profile.id, 'GOOGLE');
+    if (!user) {
+      user = await this.prismaService.user.create({
+        data: {
+          name: name.givenName,
+          email: emails[0].value,
+          provider: 'GOOGLE',
+          providerId: profile.id,
+        },
+      });
+    }
+    const tokens = await this.generateTokens(user.name, user.id);
+    return { user, tokens };
+  }
+
+
+
   public async register(res: Response, dto: RegisterDto) {
     const user = await this.userService.create(dto);
     const tokens = await this.generateTokens(user.name, user.id);
