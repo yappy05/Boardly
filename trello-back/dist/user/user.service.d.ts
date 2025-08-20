@@ -19,7 +19,24 @@ export declare class UserService {
         createdAt: Date;
         updatedAt: Date;
     }>;
-    findByEmail(email: string): Promise<{
+    findByEmail(email: string): Promise<({
+        kanban: ({
+            tasks: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                title: string;
+                status: import("prisma/__generated__").$Enums.TaskStatus;
+                kanbanId: string;
+            }[];
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            userId: string;
+        })[];
+    } & {
         name: string;
         email: string;
         password: string | null;
@@ -32,7 +49,7 @@ export declare class UserService {
         expiresAt: number | null;
         createdAt: Date;
         updatedAt: Date;
-    } | null>;
+    }) | null>;
     findByRefreshToken(req: Request, includeRefreshToken?: boolean): Promise<{
         name: string;
         email: string;

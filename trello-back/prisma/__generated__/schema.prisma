@@ -18,6 +18,7 @@ model User {
   providerId   String?   @map("provider_id")
   accessToken  String?   @map("access_token")
   refreshToken String?   @map("refresh_token")
+  kanban       Kanban[]
   expiresAt    Int?      @map("expires_at")
   createdAt    DateTime  @default(now()) @map("crated_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
@@ -25,13 +26,44 @@ model User {
   @@map("users")
 }
 
+model Kanban {
+  id        String   @id @default(uuid())
+  title     String
+  tasks     Task[]
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @map("crated_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("kanban")
+}
+
+model Task {
+  id        String     @id @default(uuid())
+  status    TaskStatus @default(INBOX)
+  title     String
+  kanban    Kanban     @relation(fields: [kanbanId], references: [id])
+  kanbanId  String     @map("kanban_id")
+  createdAt DateTime   @default(now()) @map("crated_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@map("tasks")
+}
+
 enum UserRole {
   REGULAR
-  ADMIB
+  ADMIN
 }
 
 enum Provider {
   LOCAL
   GOOGLE
   YANDEX
+}
+
+enum TaskStatus {
+  INBOX
+  TODO
+  INPROGRESS
+  DONE
 }

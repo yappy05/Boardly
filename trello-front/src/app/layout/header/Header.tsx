@@ -3,10 +3,12 @@ import { SiTrello } from "react-icons/si";
 import { IoPersonCircleOutline } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import {useAuth} from "../../../features/auth/model/useAuth.ts";
+import {useNavigate} from "react-router-dom";
 
 export const Header = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate()
 
   const {logout} = useAuth()
   const {user} = useAuth()
@@ -31,6 +33,10 @@ export const Header = () => {
     setIsProfileMenuOpen(false);
   };
 
+  const handleRedirectHome = () => {
+    navigate('/home')
+  }
+
   return (
     <header className="w-full min-w-screen bg-white border-b border-gray-200 shadow-sm">
       <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -39,7 +45,7 @@ export const Header = () => {
           <div className="w-16"></div>
 
           {/* Центрированный логотип Trello и название */}
-          <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2">
+          <div onClick={handleRedirectHome} className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-2 cursor-pointer">
             <SiTrello className="w-8 h-8 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">Boardly</h1>
           </div>

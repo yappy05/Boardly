@@ -5,7 +5,6 @@ import { Request } from 'express';
 import { RequestCookieDto } from '../auth/dto/request-cookie.dto';
 import { Provider } from 'prisma/__generated__';
 
-
 @Injectable()
 export class UserService {
   constructor(private readonly prismaService: PrismaService) {}
@@ -30,6 +29,13 @@ export class UserService {
     const user = await this.prismaService.user.findUnique({
       where: {
         email,
+      },
+      include: {
+        kanban: {
+          include: {
+            tasks: true,
+          },
+        },
       },
     });
     return user;

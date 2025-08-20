@@ -135,6 +135,23 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.KanbanScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TaskScalarFieldEnum = {
+  id: 'id',
+  status: 'status',
+  title: 'title',
+  kanbanId: 'kanbanId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -151,7 +168,7 @@ exports.Prisma.NullsOrder = {
 };
 exports.UserRole = exports.$Enums.UserRole = {
   REGULAR: 'REGULAR',
-  ADMIB: 'ADMIB'
+  ADMIN: 'ADMIN'
 };
 
 exports.Provider = exports.$Enums.Provider = {
@@ -160,8 +177,17 @@ exports.Provider = exports.$Enums.Provider = {
   YANDEX: 'YANDEX'
 };
 
+exports.TaskStatus = exports.$Enums.TaskStatus = {
+  INBOX: 'INBOX',
+  TODO: 'TODO',
+  INPROGRESS: 'INPROGRESS',
+  DONE: 'DONE'
+};
+
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Kanban: 'Kanban',
+  Task: 'Task'
 };
 
 /**

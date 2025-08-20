@@ -5,7 +5,7 @@ import {Footer} from "../footer";
 export const AppLayout = () => (
     <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1">
+        <main className="flex-1 flex">
             <Outlet /> {/* Дочерние роуты рендерятся здесь */}
         </main>
         <Footer />

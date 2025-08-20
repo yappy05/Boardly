@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
-const passport_1 = require("@nestjs/passport");
 let UserController = class UserController {
     userService;
     constructor(userService) {
@@ -30,7 +29,6 @@ let UserController = class UserController {
 };
 exports.UserController = UserController;
 __decorate([
-    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Post)('email'),
     __param(0, (0, common_1.Body)('email')),
     __metadata("design:type", Function),

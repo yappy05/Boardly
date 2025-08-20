@@ -37,6 +37,13 @@ let UserService = class UserService {
             where: {
                 email,
             },
+            include: {
+                kanban: {
+                    include: {
+                        tasks: true,
+                    },
+                },
+            },
         });
         return user;
     }

@@ -3,6 +3,7 @@ import {LoginPage, RegisterPage} from "../../pages/auth";
 import {WelcomePage} from "../../pages/welcome";
 import {HomePage} from "../../pages/home";
 import {AppLayout} from "../layout";
+import {KanbanPage} from "../../pages/kanban/ui/Kanban.page.tsx";
 
 export const Router = () => {
     return (
@@ -13,6 +14,10 @@ export const Router = () => {
             <Route element={<AppLayout />}>
                 <Route path="/home" element={<HomePage />} />
             </Route>
+            <Route element={<AppLayout />}>
+                <Route path="/kanban/:id" element={<KanbanPage/>}/>
+            </Route>
+
         </Routes>
     )
 }
