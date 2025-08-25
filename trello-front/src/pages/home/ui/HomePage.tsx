@@ -2,16 +2,21 @@ import {useEffect, useState} from "react";
 import {useNavigate, useSearchParams} from "react-router-dom";
 import {Preview} from "../../../widgets/preview/ui/preview.tsx";
 import {CreateKanbanModal} from "../../../shared/ui/CreateKanbanModal.tsx";
-import {useKanban} from "../../../features/kanban/model/useKanban.ts";
+import {useKanban} from "../../../features/kanban/model/use-kanban.tsx";
+import {useAuth} from "../../../features/auth/model/useAuth.ts";
+
 
 export const HomePage = () => {
     const [searchParams] = useSearchParams()
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { create } = useKanban()
+    const {createKanban} = useKanban()
+    const {user} = useAuth()
+
     const navigate = useNavigate()
 
     const handleCreateKanban = async (title: string) => {
-        const response = await create(title)
+        if (!user) return
+        const response = await createKanban({title, userId: user.id})
         console.log(response)
         setIsModalOpen(false)
     };

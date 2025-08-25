@@ -1,9 +1,12 @@
 import { KanbanService } from './kanban.service';
 import { CreateDto } from './dto/create.dto';
 import { TaskDto } from './dto/add-task.dto';
+import { Request } from 'express';
+import { TaskService } from '../task/task.service';
 export declare class KanbanController {
     private readonly kanbanService;
-    constructor(kanbanService: KanbanService);
+    private readonly taskService;
+    constructor(kanbanService: KanbanService, taskService: TaskService);
     create(dto: CreateDto): Promise<{
         id: string;
         createdAt: Date;
@@ -11,12 +14,13 @@ export declare class KanbanController {
         title: string;
         userId: string;
     }>;
-    addTask(id: string, dto: TaskDto): Promise<{
+    addTask(kanbanId: string, dto: TaskDto): Promise<{
         id: string;
         createdAt: Date;
         updatedAt: Date;
         title: string;
         status: import("prisma/__generated__").$Enums.TaskStatus;
+        order: number;
         kanbanId: string;
     }>;
     findById(id: string): Promise<({
@@ -26,6 +30,7 @@ export declare class KanbanController {
             updatedAt: Date;
             title: string;
             status: import("prisma/__generated__").$Enums.TaskStatus;
+            order: number;
             kanbanId: string;
         }[];
     } & {
@@ -35,11 +40,21 @@ export declare class KanbanController {
         title: string;
         userId: string;
     }) | null>;
-    findAll(userId: string): Promise<{
+    findAll(req: Request): Promise<({
+        tasks: {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            status: import("prisma/__generated__").$Enums.TaskStatus;
+            order: number;
+            kanbanId: string;
+        }[];
+    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
         title: string;
         userId: string;
-    }[]>;
+    })[]>;
 }

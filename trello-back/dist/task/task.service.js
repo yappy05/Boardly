@@ -5,13 +5,41 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TaskService = void 0;
 const common_1 = require("@nestjs/common");
+const prisma_service_1 = require("../prisma/prisma.service");
+const kanban_service_1 = require("../kanban/kanban.service");
 let TaskService = class TaskService {
+    prismaService;
+    kanbanService;
+    constructor(prismaService, kanbanService) {
+        this.prismaService = prismaService;
+        this.kanbanService = kanbanService;
+    }
+    async addTask(kanbanId, dto) {
+        const kanban = await this.kanbanService.findById(kanbanId);
+        if (!kanban)
+            throw new common_1.NotFoundException('Доска не найдена');
+        const length = kanban.tasks.length;
+        const task = this.prismaService.task.create({
+            data: {
+                title: dto.title,
+                status: dto.status,
+                kanbanId,
+                order: length + 1,
+            },
+        });
+        return task;
+    }
 };
 exports.TaskService = TaskService;
 exports.TaskService = TaskService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        kanban_service_1.KanbanService])
 ], TaskService);
 //# sourceMappingURL=task.service.js.map

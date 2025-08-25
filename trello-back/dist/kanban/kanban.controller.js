@@ -17,22 +17,25 @@ const common_1 = require("@nestjs/common");
 const kanban_service_1 = require("./kanban.service");
 const create_dto_1 = require("./dto/create.dto");
 const add_task_dto_1 = require("./dto/add-task.dto");
+const task_service_1 = require("../task/task.service");
 let KanbanController = class KanbanController {
     kanbanService;
-    constructor(kanbanService) {
+    taskService;
+    constructor(kanbanService, taskService) {
         this.kanbanService = kanbanService;
+        this.taskService = taskService;
     }
     create(dto) {
         return this.kanbanService.create(dto);
     }
-    addTask(id, dto) {
-        return this.kanbanService.addTask(id, dto);
+    addTask(kanbanId, dto) {
+        return this.taskService.addTask(kanbanId, dto);
     }
     findById(id) {
         return this.kanbanService.findById(id);
     }
-    findAll(userId) {
-        return this.kanbanService.findAll(userId);
+    findAll(req) {
+        return this.kanbanService.findAll(req);
     }
 };
 exports.KanbanController = KanbanController;
@@ -44,8 +47,8 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], KanbanController.prototype, "create", null);
 __decorate([
-    (0, common_1.Post)(':id/add-task'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Post)(':kanbanId/add-task'),
+    __param(0, (0, common_1.Param)('kanbanId')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, add_task_dto_1.TaskDto]),
@@ -59,14 +62,15 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], KanbanController.prototype, "findById", null);
 __decorate([
-    (0, common_1.Post)('find-all'),
-    __param(0, (0, common_1.Body)('userId')),
+    (0, common_1.Get)('find-all'),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], KanbanController.prototype, "findAll", null);
 exports.KanbanController = KanbanController = __decorate([
     (0, common_1.Controller)('kanban'),
-    __metadata("design:paramtypes", [kanban_service_1.KanbanService])
+    __metadata("design:paramtypes", [kanban_service_1.KanbanService,
+        task_service_1.TaskService])
 ], KanbanController);
 //# sourceMappingURL=kanban.controller.js.map

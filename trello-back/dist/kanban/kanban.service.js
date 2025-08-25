@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.KanbanService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const user_service_1 = require("../user/user.service");
 let KanbanService = class KanbanService {
     prismaService;
-    constructor(prismaService) {
+    userService;
+    constructor(prismaService, userService) {
         this.prismaService = prismaService;
+        this.userService = userService;
     }
     async create(dto) {
         const kanban = await this.prismaService.kanban.create({
@@ -25,16 +28,6 @@ let KanbanService = class KanbanService {
             },
         });
         return kanban;
-    }
-    async addTask(id, dto) {
-        const task = this.prismaService.task.create({
-            data: {
-                title: dto.title,
-                status: dto.status,
-                kanbanId: id,
-            },
-        });
-        return task;
     }
     async findById(id) {
         const kanban = await this.prismaService.kanban.findUnique({
@@ -47,13 +40,20 @@ let KanbanService = class KanbanService {
         });
         return kanban;
     }
-    async findAll(userId) {
+    async findAll(req) {
+        const user = await this.userService.findByRefreshToken(req);
+        if (!user)
+            throw new common_1.NotFoundException('пользователь не авторизирован');
         const response = await this.prismaService.user.findUnique({
             where: {
-                id: userId,
+                id: user.id,
             },
             include: {
-                kanban: true,
+                kanban: {
+                    include: {
+                        tasks: true,
+                    },
+                },
             },
         });
         if (!response)
@@ -64,6 +64,7 @@ let KanbanService = class KanbanService {
 exports.KanbanService = KanbanService;
 exports.KanbanService = KanbanService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        user_service_1.UserService])
 ], KanbanService);
 //# sourceMappingURL=kanban.service.js.map

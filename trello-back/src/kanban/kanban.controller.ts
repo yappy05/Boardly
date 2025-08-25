@@ -1,20 +1,25 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { KanbanService } from './kanban.service';
 import { CreateDto } from './dto/create.dto';
 import { TaskDto } from './dto/add-task.dto';
+import { Request } from 'express';
+import { TaskService } from '../task/task.service';
 
 @Controller('kanban')
 export class KanbanController {
-  constructor(private readonly kanbanService: KanbanService) {}
+  constructor(
+    private readonly kanbanService: KanbanService,
+    private readonly taskService: TaskService,
+  ) {}
 
   @Post('create')
   public create(@Body() dto: CreateDto) {
     return this.kanbanService.create(dto);
   }
 
-  @Post(':id/add-task')
-  public addTask(@Param('id') id: string, @Body() dto: TaskDto) {
-    return this.kanbanService.addTask(id, dto);
+  @Post(':kanbanId/add-task')
+  public addTask(@Param('kanbanId') kanbanId: string, @Body() dto: TaskDto) {
+    return this.taskService.addTask(kanbanId, dto);
   }
 
   @Get('by-id/:id')
@@ -22,8 +27,8 @@ export class KanbanController {
     return this.kanbanService.findById(id);
   }
 
-  @Post('find-all')
-  public findAll(@Body('userId') userId: string) {
-    return this.kanbanService.findAll(userId);
+  @Get('find-all')
+  public findAll(@Req() req: Request) {
+    return this.kanbanService.findAll(req);
   }
 }

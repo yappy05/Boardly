@@ -42,6 +42,7 @@ model Task {
   id        String     @id @default(uuid())
   status    TaskStatus @default(INBOX)
   title     String
+  order     Int
   kanban    Kanban     @relation(fields: [kanbanId], references: [id])
   kanbanId  String     @map("kanban_id")
   createdAt DateTime   @default(now()) @map("crated_at")

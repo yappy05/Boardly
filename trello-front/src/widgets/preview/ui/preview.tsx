@@ -1,11 +1,12 @@
-import {useKanban} from "../../../features/kanban/model/useKanban.ts";
+
 import {format} from "date-fns";
 import {ru} from "date-fns/locale";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
+import {useKanban} from "../../../features/kanban/model/use-kanban.tsx";
 
 export const Preview = () => {
-    const { kanbans } = useKanban()
+    const {kanbans} = useKanban()
     const navigate = useNavigate()
     const [showAll, setShowAll] = useState(false)
 

@@ -89,7 +89,7 @@ export const TaskStatus: typeof $Enums.TaskStatus
  */
 export class PrismaClient<
   ClientOptions extends Prisma.PrismaClientOptions = Prisma.PrismaClientOptions,
-  U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
+  const U = 'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never,
   ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs
 > {
   [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
@@ -121,13 +121,6 @@ export class PrismaClient<
    * Disconnect from the database
    */
   $disconnect(): $Utils.JsPromise<void>;
-
-  /**
-   * Add a middleware
-   * @deprecated since 4.16.0. For new code, prefer client extensions instead.
-   * @see https://pris.ly/d/extensions
-   */
-  $use(cb: Prisma.Middleware): void
 
 /**
    * Executes a prepared raw query and returns the number of affected rows.
@@ -285,8 +278,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.12.0
-   * Query Engine version: 8047c96bbd92db98a2abc7c9323ce77c02c89dbc
+   * Prisma Client JS version: 6.14.0
+   * Query Engine version: 717184b7b35ea05dfa71a3236b7af656013e1e49
    */
   export type PrismaVersion = {
     client: string
@@ -957,16 +950,24 @@ export namespace Prisma {
     /**
      * @example
      * ```
-     * // Defaults to stdout
+     * // Shorthand for `emit: 'stdout'`
      * log: ['query', 'info', 'warn', 'error']
      * 
-     * // Emit as events
+     * // Emit as events only
      * log: [
-     *   { emit: 'stdout', level: 'query' },
-     *   { emit: 'stdout', level: 'info' },
-     *   { emit: 'stdout', level: 'warn' }
-     *   { emit: 'stdout', level: 'error' }
+     *   { emit: 'event', level: 'query' },
+     *   { emit: 'event', level: 'info' },
+     *   { emit: 'event', level: 'warn' }
+     *   { emit: 'event', level: 'error' }
      * ]
+     * 
+     * / Emit as events and log to stdout
+     * og: [
+     *  { emit: 'stdout', level: 'query' },
+     *  { emit: 'stdout', level: 'info' },
+     *  { emit: 'stdout', level: 'warn' }
+     *  { emit: 'stdout', level: 'error' }
+     * 
      * ```
      * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/logging#the-log-option).
      */
@@ -1010,10 +1011,15 @@ export namespace Prisma {
     emit: 'stdout' | 'event'
   }
 
-  export type GetLogType<T extends LogLevel | LogDefinition> = T extends LogDefinition ? T['emit'] extends 'event' ? T['level'] : never : never
-  export type GetEvents<T extends any> = T extends Array<LogLevel | LogDefinition> ?
-    GetLogType<T[0]> | GetLogType<T[1]> | GetLogType<T[2]> | GetLogType<T[3]>
-    : never
+  export type CheckIsLogLevel<T> = T extends LogLevel ? T : never;
+
+  export type GetLogType<T> = CheckIsLogLevel<
+    T extends LogDefinition ? T['level'] : T
+  >;
+
+  export type GetEvents<T extends any[]> = T extends Array<LogLevel | LogDefinition>
+    ? GetLogType<T[number]>
+    : never;
 
   export type QueryEvent = {
     timestamp: Date
@@ -1053,25 +1059,6 @@ export namespace Prisma {
     | 'runCommandRaw'
     | 'findRaw'
     | 'groupBy'
-
-  /**
-   * These options are being passed into the middleware as "params"
-   */
-  export type MiddlewareParams = {
-    model?: ModelName
-    action: PrismaAction
-    args: any
-    dataPath: string[]
-    runInTransaction: boolean
-  }
-
-  /**
-   * The `T` type makes sure, that the `return proceed` is not forgotten in the middleware implementation
-   */
-  export type Middleware<T = any> = (
-    params: MiddlewareParams,
-    next: (params: MiddlewareParams) => $Utils.JsPromise<T>,
-  ) => $Utils.JsPromise<T>
 
   // tested in getLogLevel.test.ts
   export function getLogLevel(log: Array<LogLevel | LogDefinition>): LogLevel | undefined;
@@ -3445,14 +3432,25 @@ export namespace Prisma {
 
   export type AggregateTask = {
     _count: TaskCountAggregateOutputType | null
+    _avg: TaskAvgAggregateOutputType | null
+    _sum: TaskSumAggregateOutputType | null
     _min: TaskMinAggregateOutputType | null
     _max: TaskMaxAggregateOutputType | null
+  }
+
+  export type TaskAvgAggregateOutputType = {
+    order: number | null
+  }
+
+  export type TaskSumAggregateOutputType = {
+    order: number | null
   }
 
   export type TaskMinAggregateOutputType = {
     id: string | null
     status: $Enums.TaskStatus | null
     title: string | null
+    order: number | null
     kanbanId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3462,6 +3460,7 @@ export namespace Prisma {
     id: string | null
     status: $Enums.TaskStatus | null
     title: string | null
+    order: number | null
     kanbanId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3471,6 +3470,7 @@ export namespace Prisma {
     id: number
     status: number
     title: number
+    order: number
     kanbanId: number
     createdAt: number
     updatedAt: number
@@ -3478,10 +3478,19 @@ export namespace Prisma {
   }
 
 
+  export type TaskAvgAggregateInputType = {
+    order?: true
+  }
+
+  export type TaskSumAggregateInputType = {
+    order?: true
+  }
+
   export type TaskMinAggregateInputType = {
     id?: true
     status?: true
     title?: true
+    order?: true
     kanbanId?: true
     createdAt?: true
     updatedAt?: true
@@ -3491,6 +3500,7 @@ export namespace Prisma {
     id?: true
     status?: true
     title?: true
+    order?: true
     kanbanId?: true
     createdAt?: true
     updatedAt?: true
@@ -3500,6 +3510,7 @@ export namespace Prisma {
     id?: true
     status?: true
     title?: true
+    order?: true
     kanbanId?: true
     createdAt?: true
     updatedAt?: true
@@ -3544,6 +3555,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: TaskAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TaskSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: TaskMinAggregateInputType
@@ -3574,6 +3597,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: TaskCountAggregateInputType | true
+    _avg?: TaskAvgAggregateInputType
+    _sum?: TaskSumAggregateInputType
     _min?: TaskMinAggregateInputType
     _max?: TaskMaxAggregateInputType
   }
@@ -3582,10 +3607,13 @@ export namespace Prisma {
     id: string
     status: $Enums.TaskStatus
     title: string
+    order: number
     kanbanId: string
     createdAt: Date
     updatedAt: Date
     _count: TaskCountAggregateOutputType | null
+    _avg: TaskAvgAggregateOutputType | null
+    _sum: TaskSumAggregateOutputType | null
     _min: TaskMinAggregateOutputType | null
     _max: TaskMaxAggregateOutputType | null
   }
@@ -3608,6 +3636,7 @@ export namespace Prisma {
     id?: boolean
     status?: boolean
     title?: boolean
+    order?: boolean
     kanbanId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3618,6 +3647,7 @@ export namespace Prisma {
     id?: boolean
     status?: boolean
     title?: boolean
+    order?: boolean
     kanbanId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3628,6 +3658,7 @@ export namespace Prisma {
     id?: boolean
     status?: boolean
     title?: boolean
+    order?: boolean
     kanbanId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -3638,12 +3669,13 @@ export namespace Prisma {
     id?: boolean
     status?: boolean
     title?: boolean
+    order?: boolean
     kanbanId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "title" | "kanbanId" | "createdAt" | "updatedAt", ExtArgs["result"]["task"]>
+  export type TaskOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "status" | "title" | "order" | "kanbanId" | "createdAt" | "updatedAt", ExtArgs["result"]["task"]>
   export type TaskInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     kanban?: boolean | KanbanDefaultArgs<ExtArgs>
   }
@@ -3663,6 +3695,7 @@ export namespace Prisma {
       id: string
       status: $Enums.TaskStatus
       title: string
+      order: number
       kanbanId: string
       createdAt: Date
       updatedAt: Date
@@ -4093,6 +4126,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Task", 'String'>
     readonly status: FieldRef<"Task", 'TaskStatus'>
     readonly title: FieldRef<"Task", 'String'>
+    readonly order: FieldRef<"Task", 'Int'>
     readonly kanbanId: FieldRef<"Task", 'String'>
     readonly createdAt: FieldRef<"Task", 'DateTime'>
     readonly updatedAt: FieldRef<"Task", 'DateTime'>
@@ -4557,6 +4591,7 @@ export namespace Prisma {
     id: 'id',
     status: 'status',
     title: 'title',
+    order: 'order',
     kanbanId: 'kanbanId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -4852,6 +4887,7 @@ export namespace Prisma {
     id?: StringFilter<"Task"> | string
     status?: EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
     title?: StringFilter<"Task"> | string
+    order?: IntFilter<"Task"> | number
     kanbanId?: StringFilter<"Task"> | string
     createdAt?: DateTimeFilter<"Task"> | Date | string
     updatedAt?: DateTimeFilter<"Task"> | Date | string
@@ -4862,6 +4898,7 @@ export namespace Prisma {
     id?: SortOrder
     status?: SortOrder
     title?: SortOrder
+    order?: SortOrder
     kanbanId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -4875,6 +4912,7 @@ export namespace Prisma {
     NOT?: TaskWhereInput | TaskWhereInput[]
     status?: EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
     title?: StringFilter<"Task"> | string
+    order?: IntFilter<"Task"> | number
     kanbanId?: StringFilter<"Task"> | string
     createdAt?: DateTimeFilter<"Task"> | Date | string
     updatedAt?: DateTimeFilter<"Task"> | Date | string
@@ -4885,12 +4923,15 @@ export namespace Prisma {
     id?: SortOrder
     status?: SortOrder
     title?: SortOrder
+    order?: SortOrder
     kanbanId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TaskCountOrderByAggregateInput
+    _avg?: TaskAvgOrderByAggregateInput
     _max?: TaskMaxOrderByAggregateInput
     _min?: TaskMinOrderByAggregateInput
+    _sum?: TaskSumOrderByAggregateInput
   }
 
   export type TaskScalarWhereWithAggregatesInput = {
@@ -4900,6 +4941,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Task"> | string
     status?: EnumTaskStatusWithAggregatesFilter<"Task"> | $Enums.TaskStatus
     title?: StringWithAggregatesFilter<"Task"> | string
+    order?: IntWithAggregatesFilter<"Task"> | number
     kanbanId?: StringWithAggregatesFilter<"Task"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Task"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Task"> | Date | string
@@ -5077,6 +5119,7 @@ export namespace Prisma {
     id?: string
     status?: $Enums.TaskStatus
     title: string
+    order: number
     createdAt?: Date | string
     updatedAt?: Date | string
     kanban: KanbanCreateNestedOneWithoutTasksInput
@@ -5086,6 +5129,7 @@ export namespace Prisma {
     id?: string
     status?: $Enums.TaskStatus
     title: string
+    order: number
     kanbanId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -5095,6 +5139,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     title?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     kanban?: KanbanUpdateOneRequiredWithoutTasksNestedInput
@@ -5104,6 +5149,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     title?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     kanbanId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5113,6 +5159,7 @@ export namespace Prisma {
     id?: string
     status?: $Enums.TaskStatus
     title: string
+    order: number
     kanbanId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -5122,6 +5169,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     title?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5130,6 +5178,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     title?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     kanbanId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5401,6 +5450,17 @@ export namespace Prisma {
     not?: NestedEnumTaskStatusFilter<$PrismaModel> | $Enums.TaskStatus
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type KanbanScalarRelationFilter = {
     is?: KanbanWhereInput
     isNot?: KanbanWhereInput
@@ -5410,15 +5470,21 @@ export namespace Prisma {
     id?: SortOrder
     status?: SortOrder
     title?: SortOrder
+    order?: SortOrder
     kanbanId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type TaskAvgOrderByAggregateInput = {
+    order?: SortOrder
   }
 
   export type TaskMaxOrderByAggregateInput = {
     id?: SortOrder
     status?: SortOrder
     title?: SortOrder
+    order?: SortOrder
     kanbanId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -5428,9 +5494,14 @@ export namespace Prisma {
     id?: SortOrder
     status?: SortOrder
     title?: SortOrder
+    order?: SortOrder
     kanbanId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type TaskSumOrderByAggregateInput = {
+    order?: SortOrder
   }
 
   export type EnumTaskStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -5441,6 +5512,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumTaskStatusFilter<$PrismaModel>
     _max?: NestedEnumTaskStatusFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type KanbanCreateNestedManyWithoutUserInput = {
@@ -5577,6 +5664,14 @@ export namespace Prisma {
 
   export type EnumTaskStatusFieldUpdateOperationsInput = {
     set?: $Enums.TaskStatus
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type KanbanUpdateOneRequiredWithoutTasksNestedInput = {
@@ -5774,6 +5869,33 @@ export namespace Prisma {
     _max?: NestedEnumTaskStatusFilter<$PrismaModel>
   }
 
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type KanbanCreateWithoutUserInput = {
     id?: string
     title: string
@@ -5831,6 +5953,7 @@ export namespace Prisma {
     id?: string
     status?: $Enums.TaskStatus
     title: string
+    order: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -5839,6 +5962,7 @@ export namespace Prisma {
     id?: string
     status?: $Enums.TaskStatus
     title: string
+    order: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -5911,6 +6035,7 @@ export namespace Prisma {
     id?: StringFilter<"Task"> | string
     status?: EnumTaskStatusFilter<"Task"> | $Enums.TaskStatus
     title?: StringFilter<"Task"> | string
+    order?: IntFilter<"Task"> | number
     kanbanId?: StringFilter<"Task"> | string
     createdAt?: DateTimeFilter<"Task"> | Date | string
     updatedAt?: DateTimeFilter<"Task"> | Date | string
@@ -6039,6 +6164,7 @@ export namespace Prisma {
     id?: string
     status?: $Enums.TaskStatus
     title: string
+    order: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6047,6 +6173,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     title?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6055,6 +6182,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     title?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6063,6 +6191,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumTaskStatusFieldUpdateOperationsInput | $Enums.TaskStatus
     title?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

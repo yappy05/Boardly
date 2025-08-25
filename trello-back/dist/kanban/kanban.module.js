@@ -10,13 +10,17 @@ exports.KanbanModule = void 0;
 const common_1 = require("@nestjs/common");
 const kanban_service_1 = require("./kanban.service");
 const kanban_controller_1 = require("./kanban.controller");
+const user_service_1 = require("../user/user.service");
+const task_service_1 = require("../task/task.service");
 let KanbanModule = class KanbanModule {
 };
 exports.KanbanModule = KanbanModule;
 exports.KanbanModule = KanbanModule = __decorate([
     (0, common_1.Module)({
+        imports: [],
         controllers: [kanban_controller_1.KanbanController],
-        providers: [kanban_service_1.KanbanService],
+        providers: [kanban_service_1.KanbanService, user_service_1.UserService, task_service_1.TaskService],
+        exports: [kanban_service_1.KanbanService],
     })
 ], KanbanModule);
 //# sourceMappingURL=kanban.module.js.map
