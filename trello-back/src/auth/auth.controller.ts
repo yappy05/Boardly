@@ -14,12 +14,15 @@ import { Response, Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthResult } from './types/GoogleAuthResult';
 import { PrismaService } from '../prisma/prisma.service';
+import { YandexAuthResult } from './types/YandexAuthResult';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Get('google')
@@ -43,8 +46,32 @@ export class AuthController {
         refreshToken: tokens.refreshToken,
       },
     });
-    res.redirect(`http://localhost:5173/home?token=${tokens.accessToken}`);
-    return { tokens };
+    res.redirect(`http://localhost:5173/home`);
+    // return { tokens };
+  }
+
+  @Get('yandex')
+  @UseGuards(AuthGuard('yandex'))
+  async yandexAuth() {}
+
+  @Get('yandex/callback')
+  @UseGuards(AuthGuard('yandex'))
+  async yandexAuthCallback(
+    @Res({ passthrough: true }) res: Response,
+    @Req() req: { user: YandexAuthResult },
+  ) {
+    const { user, tokens } = req.user;
+    res.cookie('refreshToken', tokens.refreshToken);
+    await this.prismaService.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        refreshToken: tokens.refreshToken,
+      },
+    });
+    res.redirect(`http://localhost:5173/home`);
+    // return { tokens };
   }
 
   @Post('register')

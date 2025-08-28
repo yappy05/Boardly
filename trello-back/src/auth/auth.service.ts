@@ -38,7 +38,25 @@ export class AuthService {
     return { user, tokens };
   }
 
-
+  public async yandexAuth(profile) {
+    // Если приходит { profile: {...} }, извлекаем профиль
+    // Ваш существующий код
+    const { login, emails, first_name } = profile;
+    console.log(profile)
+    let user = await this.userService.findByProviderId(profile.id, 'YANDEX');
+    if (!user) {
+      user = await this.prismaService.user.create({
+        data: {
+          name: login || first_name || emails[0].value.split('@')[0], // гарантия имени
+          email: emails[0].value,
+          provider: 'YANDEX',
+          providerId: profile.id,
+        },
+      });
+    }
+    const tokens = await this.generateTokens(user.name, user.id);
+    return { user, tokens };
+  }
 
   public async register(res: Response, dto: RegisterDto) {
     const user = await this.userService.create(dto);

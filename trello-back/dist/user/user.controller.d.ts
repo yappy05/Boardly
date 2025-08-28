@@ -10,8 +10,8 @@ export declare class UserController {
                 createdAt: Date;
                 updatedAt: Date;
                 title: string;
-                order: number;
                 status: import("prisma/__generated__").$Enums.TaskStatus;
+                order: number;
                 kanbanId: string;
             }[];
         } & {
@@ -22,10 +22,10 @@ export declare class UserController {
             userId: string;
         })[];
     } & {
-        name: string;
-        email: string;
-        password: string | null;
         id: string;
+        email: string;
+        name: string;
+        password: string | null;
         role: import("prisma/__generated__").$Enums.UserRole;
         provider: import("prisma/__generated__").$Enums.Provider | null;
         providerId: string | null;
@@ -36,9 +36,9 @@ export declare class UserController {
         updatedAt: Date;
     }) | null>;
     findByRefreshToken(req: Request): Promise<{
-        name: string;
-        email: string;
         id: string;
+        email: string;
+        name: string;
         refreshToken: string | null;
     } | null>;
 }

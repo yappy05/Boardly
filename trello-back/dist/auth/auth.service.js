@@ -42,6 +42,23 @@ let AuthService = class AuthService {
         const tokens = await this.generateTokens(user.name, user.id);
         return { user, tokens };
     }
+    async yandexAuth(profile) {
+        const { login, emails, first_name } = profile;
+        console.log(profile);
+        let user = await this.userService.findByProviderId(profile.id, 'YANDEX');
+        if (!user) {
+            user = await this.prismaService.user.create({
+                data: {
+                    name: login || first_name || emails[0].value.split('@')[0],
+                    email: emails[0].value,
+                    provider: 'YANDEX',
+                    providerId: profile.id,
+                },
+            });
+        }
+        const tokens = await this.generateTokens(user.name, user.id);
+        return { user, tokens };
+    }
     async register(res, dto) {
         const user = await this.userService.create(dto);
         const tokens = await this.generateTokens(user.name, user.id);

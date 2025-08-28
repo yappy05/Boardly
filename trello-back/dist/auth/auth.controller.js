@@ -19,12 +19,15 @@ const register_dto_1 = require("./dto/register.dto");
 const login_dto_1 = require("./dto/login.dto");
 const passport_1 = require("@nestjs/passport");
 const prisma_service_1 = require("../prisma/prisma.service");
+const config_1 = require("@nestjs/config");
 let AuthController = class AuthController {
     authService;
     prismaService;
-    constructor(authService, prismaService) {
+    configService;
+    constructor(authService, prismaService, configService) {
         this.authService = authService;
         this.prismaService = prismaService;
+        this.configService = configService;
     }
     async googleAuth() { }
     async googleAuthCallback(res, req) {
@@ -38,8 +41,21 @@ let AuthController = class AuthController {
                 refreshToken: tokens.refreshToken,
             },
         });
-        res.redirect(`http://localhost:5173/home?token=${tokens.accessToken}`);
-        return { tokens };
+        res.redirect(`http://localhost:5173/home`);
+    }
+    async yandexAuth() { }
+    async yandexAuthCallback(res, req) {
+        const { user, tokens } = req.user;
+        res.cookie('refreshToken', tokens.refreshToken);
+        await this.prismaService.user.update({
+            where: {
+                id: user.id,
+            },
+            data: {
+                refreshToken: tokens.refreshToken,
+            },
+        });
+        res.redirect(`http://localhost:5173/home`);
     }
     register(res, dto) {
         return this.authService.register(res, dto);
@@ -71,6 +87,22 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "googleAuthCallback", null);
+__decorate([
+    (0, common_1.Get)('yandex'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('yandex')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "yandexAuth", null);
+__decorate([
+    (0, common_1.Get)('yandex/callback'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('yandex')),
+    __param(0, (0, common_1.Res)({ passthrough: true })),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "yandexAuthCallback", null);
 __decorate([
     (0, common_1.Post)('register'),
     __param(0, (0, common_1.Res)({ passthrough: true })),
@@ -107,6 +139,7 @@ __decorate([
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService,
-        prisma_service_1.PrismaService])
+        prisma_service_1.PrismaService,
+        config_1.ConfigService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map

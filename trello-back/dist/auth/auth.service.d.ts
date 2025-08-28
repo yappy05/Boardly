@@ -13,10 +13,30 @@ export declare class AuthService {
     constructor(prismaService: PrismaService, userService: UserService, jwtService: JwtService, configService: ConfigService);
     googleAuth(profile: any): Promise<{
         user: {
+            id: string;
             name: string;
             email: string;
             password: string | null;
+            role: import("prisma/__generated__").$Enums.UserRole;
+            provider: import("prisma/__generated__").$Enums.Provider | null;
+            providerId: string | null;
+            accessToken: string | null;
+            refreshToken: string | null;
+            expiresAt: number | null;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+        tokens: {
+            accessToken: string;
+            refreshToken: string;
+        };
+    }>;
+    yandexAuth(profile: any): Promise<{
+        user: {
             id: string;
+            name: string;
+            email: string;
+            password: string | null;
             role: import("prisma/__generated__").$Enums.UserRole;
             provider: import("prisma/__generated__").$Enums.Provider | null;
             providerId: string | null;

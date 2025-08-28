@@ -144,7 +144,7 @@ export const LoginPage = () => {
 
               <div>
                 <a
-                  href="#"
+                  href="http://localhost:3000/auth/yandex"
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
                   <FaYandex className="h-5 w-5 text-red-500" />
@@ -160,7 +160,7 @@ export const LoginPage = () => {
               <a
                 href="#"
                 className="font-medium text-blue-600 hover:text-blue-500"
-                onClick={() => navigator("/register")}
+                onClick={() => navigate("/register")}
               >
                 Создать новый
               </a>

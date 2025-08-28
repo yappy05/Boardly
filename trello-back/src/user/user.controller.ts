@@ -7,7 +7,7 @@ import { Request } from 'express';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @Post('email')
   public async findUserByEmail(@Body('email') email: string) {
     return await this.userService.findByEmail(email);

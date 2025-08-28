@@ -4,19 +4,21 @@ import { LoginDto } from './dto/login.dto';
 import { Response, Request } from 'express';
 import { GoogleAuthResult } from './types/GoogleAuthResult';
 import { PrismaService } from '../prisma/prisma.service';
+import { YandexAuthResult } from './types/YandexAuthResult';
+import { ConfigService } from '@nestjs/config';
 export declare class AuthController {
     private readonly authService;
     private readonly prismaService;
-    constructor(authService: AuthService, prismaService: PrismaService);
+    private readonly configService;
+    constructor(authService: AuthService, prismaService: PrismaService, configService: ConfigService);
     googleAuth(): Promise<void>;
     googleAuthCallback(res: Response, req: {
         user: GoogleAuthResult;
-    }): Promise<{
-        tokens: {
-            accessToken: string;
-            refreshToken: string;
-        };
-    }>;
+    }): Promise<void>;
+    yandexAuth(): Promise<void>;
+    yandexAuthCallback(res: Response, req: {
+        user: YandexAuthResult;
+    }): Promise<void>;
     register(res: Response, dto: RegisterDto): Promise<{
         accessToken: string;
         refreshToken: string;
