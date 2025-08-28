@@ -6,9 +6,10 @@ export interface Task extends BaseEntity {
     status: TaskStatus;
     title: string;
     kanbanId: string;
+    order: number;
 }
 
-export type CreateTaskDto = Omit<Task, 'id' | 'createdAt' | 'updatedAt'>
+export type CreateTaskDto = Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'order'>
 export type UpdatedTaskDto = Partial<CreateTaskDto>
 
 export type TaskResponse = Task;

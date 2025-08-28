@@ -1,6 +1,8 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { TaskDto } from '../kanban/dto/add-task.dto';
 import { KanbanService } from '../kanban/kanban.service';
+import { $Enums } from 'prisma/__generated__';
+import TaskStatus = $Enums.TaskStatus;
 export declare class TaskService {
     private readonly prismaService;
     private readonly kanbanService;
@@ -10,8 +12,10 @@ export declare class TaskService {
         createdAt: Date;
         updatedAt: Date;
         title: string;
-        status: import("prisma/__generated__").$Enums.TaskStatus;
         order: number;
+        status: $Enums.TaskStatus;
         kanbanId: string;
     }>;
+    moveTasks(kanbanId: string, activeTaskId: string, overTaskId: string): Promise<void>;
+    moveTasksDiffColumns(kanbanId: string, activeTaskId: string, overStatus: TaskStatus, newOrder: number): Promise<void>;
 }

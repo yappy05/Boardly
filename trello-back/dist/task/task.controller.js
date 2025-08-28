@@ -16,6 +16,8 @@ exports.TaskController = void 0;
 const common_1 = require("@nestjs/common");
 const task_service_1 = require("./task.service");
 const add_task_dto_1 = require("../kanban/dto/add-task.dto");
+const __generated__1 = require("../../prisma/__generated__/index.js");
+var TaskStatus = __generated__1.$Enums.TaskStatus;
 let TaskController = class TaskController {
     taskService;
     constructor(taskService) {
@@ -23,6 +25,12 @@ let TaskController = class TaskController {
     }
     create(kanbanId, dto) {
         return this.taskService.addTask(kanbanId, dto);
+    }
+    move(kanbanId, activeTaskId, overTaskId) {
+        return this.taskService.moveTasks(kanbanId, activeTaskId, overTaskId);
+    }
+    moveTasksDiffCols(kanbanId, activeTaskId, overStatus, newOrder) {
+        return this.taskService.moveTasksDiffColumns(kanbanId, activeTaskId, overStatus, newOrder);
     }
 };
 exports.TaskController = TaskController;
@@ -34,6 +42,25 @@ __decorate([
     __metadata("design:paramtypes", [String, add_task_dto_1.TaskDto]),
     __metadata("design:returntype", void 0)
 ], TaskController.prototype, "create", null);
+__decorate([
+    (0, common_1.Post)(':kanbanId/move-tasks'),
+    __param(0, (0, common_1.Param)('kanbanId')),
+    __param(1, (0, common_1.Body)('activeTaskId')),
+    __param(2, (0, common_1.Body)('overTaskId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", void 0)
+], TaskController.prototype, "move", null);
+__decorate([
+    (0, common_1.Post)(':kanbanId/move-tasks-diff-cols'),
+    __param(0, (0, common_1.Param)('kanbanId')),
+    __param(1, (0, common_1.Body)('activeTaskId')),
+    __param(2, (0, common_1.Body)('overStatus')),
+    __param(3, (0, common_1.Body)('newOrder')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, Number]),
+    __metadata("design:returntype", void 0)
+], TaskController.prototype, "moveTasksDiffCols", null);
 exports.TaskController = TaskController = __decorate([
     (0, common_1.Controller)('task'),
     __metadata("design:paramtypes", [task_service_1.TaskService])

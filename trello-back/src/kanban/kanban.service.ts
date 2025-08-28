@@ -22,14 +22,17 @@ export class KanbanService {
     return kanban;
   }
 
-
   public async findById(id: string) {
     const kanban = await this.prismaService.kanban.findUnique({
       where: {
         id,
       },
       include: {
-        tasks: true,
+        tasks: {
+          orderBy: {
+            order: 'desc',
+          },
+        },
       },
     });
     return kanban;

@@ -35,6 +35,42 @@ let TaskService = class TaskService {
         });
         return task;
     }
+    async moveTasks(kanbanId, activeTaskId, overTaskId) {
+        const kanban = await this.kanbanService.findById(kanbanId);
+        if (!kanban)
+            throw new common_1.NotFoundException('доска не найдена');
+        const activeTask = kanban.tasks.find((task) => task.id === activeTaskId);
+        const overTask = kanban.tasks.find((task) => task.id === overTaskId);
+        if (!activeTask || !overTask)
+            throw new common_1.NotFoundException('задача не найдена');
+        await this.prismaService.$transaction([
+            this.prismaService.task.update({
+                where: { id: activeTask.id },
+                data: {
+                    order: overTask.order,
+                },
+            }),
+            this.prismaService.task.update({
+                where: { id: overTask.id },
+                data: {
+                    order: activeTask.order,
+                },
+            }),
+        ]);
+    }
+    async moveTasksDiffColumns(kanbanId, activeTaskId, overStatus, newOrder) {
+        const kanban = await this.kanbanService.findById(kanbanId);
+        if (!kanban)
+            throw new common_1.NotFoundException('доска не найдена');
+        const activeTask = kanban.tasks.find((task) => task.id === activeTaskId);
+        if (!activeTask)
+            throw new common_1.NotFoundException('задача не найдена');
+        const task = await this.prismaService.task.update({
+            where: { id: activeTask.id },
+            data: { order: newOrder, status: overStatus },
+        });
+        console.log(task);
+    }
 };
 exports.TaskService = TaskService;
 exports.TaskService = TaskService = __decorate([

@@ -35,7 +35,11 @@ let KanbanService = class KanbanService {
                 id,
             },
             include: {
-                tasks: true,
+                tasks: {
+                    orderBy: {
+                        order: 'desc',
+                    },
+                },
             },
         });
         return kanban;

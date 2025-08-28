@@ -10,8 +10,8 @@ export declare class UserController {
                 createdAt: Date;
                 updatedAt: Date;
                 title: string;
-                status: import("prisma/__generated__").$Enums.TaskStatus;
                 order: number;
+                status: import("prisma/__generated__").$Enums.TaskStatus;
                 kanbanId: string;
             }[];
         } & {
